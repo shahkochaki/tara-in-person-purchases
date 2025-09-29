@@ -41,8 +41,33 @@
 
 ## Installation
 
+### Option 1: Install from Packagist (Recommended)
+
 ```bash
 composer require shahkochaki/tara-in-person-purchases
+```
+
+### Option 2: Install from GitHub (If Packagist is not available)
+
+Add to your `composer.json`:
+
+```json
+{
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/shahkochaki/tara-in-person-purchases.git"
+        }
+    ],
+    "require": {
+        "shahkochaki/tara-in-person-purchases": "^1.0"
+    }
+}
+```
+
+Then run:
+```bash
+composer install
 ```
 
 ## Configuration
