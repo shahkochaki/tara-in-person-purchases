@@ -201,7 +201,7 @@ class TaraService
         }
 
         try {
-            // اضافه کردن traceNumber به body
+            // Add traceNumber to body
             $purchaseData['traceNumber'] = $traceNumber;
 
             $response = Http::withToken($this->token)
@@ -365,7 +365,7 @@ class TaraService
     public function createTracePayment(int $barcode, int $amount, int $data = 0): array
     {
         return [
-            'barcode' => $barcode, // شناسه کاربری خریدار
+            'barcode' => $barcode, // Customer user ID
             'amount' => $amount,
             'data' => $data
         ];
@@ -389,11 +389,11 @@ class TaraService
             'name' => $name,
             'code' => $code,
             'count' => $count,
-            'unit' => $unit, // 1.کیلوگرم 2.متر 3.لیتر 4.مترمربع 5.عدد 6.قطعه 7.دستگاه 8.دست 9.بسته 10.جعبه 11.ست 12.جفت
+            'unit' => $unit, // 1:kg 2:meter 3:liter 4:sqm 5:piece 6:item 7:device 8:pair 9:pack 10:box 11:set 12:couple
             'fee' => $fee,
             'group' => $group,
             'groupTitle' => $groupTitle,
-            'made' => $made, // 0.نامشخص 1.ایرانی 2.خارجی
+            'made' => $made, // 0:unknown 1:Iranian 2:foreign
             'data' => $data
         ];
     }

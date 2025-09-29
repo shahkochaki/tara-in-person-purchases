@@ -8,75 +8,75 @@ namespace Shahkochaki\TaraService;
 class TaraConstants
 {
     /**
-     * واحدهای کالا
+     * Product units
      */
     const UNITS = [
-        1 => 'کیلوگرم',
-        2 => 'متر',
-        3 => 'لیتر',
-        4 => 'مترمربع',
-        5 => 'عدد',
-        6 => 'قطعه',
-        7 => 'دستگاه',
-        8 => 'دست',
-        9 => 'بسته',
-        10 => 'جعبه',
-        11 => 'ست',
-        12 => 'جفت'
+        1 => 'Kilogram',
+        2 => 'Meter',
+        3 => 'Liter',
+        4 => 'Square Meter',
+        5 => 'Piece',
+        6 => 'Item',
+        7 => 'Device',
+        8 => 'Pair',
+        9 => 'Package',
+        10 => 'Box',
+        11 => 'Set',
+        12 => 'Couple'
     ];
 
     /**
-     * منشأ کالا
+     * Product origin
      */
     const MADE_IN = [
-        0 => 'نامشخص',
-        1 => 'ایرانی',
-        2 => 'خارجی'
+        0 => 'Unknown',
+        1 => 'Iranian',
+        2 => 'Foreign'
     ];
 
-    // واحد کیلوگرم
+    // Kilogram unit
     const UNIT_KILOGRAM = 1;
 
-    // واحد متر
+    // Meter unit
     const UNIT_METER = 2;
 
-    // واحد لیتر
+    // Liter unit
     const UNIT_LITER = 3;
 
-    // واحد مترمربع
+    // Square meter unit
     const UNIT_SQUARE_METER = 4;
 
-    // واحد عدد
+    // Piece unit
     const UNIT_PIECE = 5;
 
-    // واحد قطعه
+    // Item unit
     const UNIT_PART = 6;
 
-    // واحد دستگاه
+    // Device unit
     const UNIT_DEVICE = 7;
 
-    // واحد دست
+    // Pair unit (hand)
     const UNIT_HAND = 8;
 
-    // واحد بسته
+    // Package unit
     const UNIT_PACKAGE = 9;
 
-    // واحد جعبه
+    // Box unit
     const UNIT_BOX = 10;
 
-    // واحد ست
+    // Set unit
     const UNIT_SET = 11;
 
-    // واحد جفت
+    // Couple/Pair unit
     const UNIT_PAIR = 12;
 
-    // منشأ نامشخص
+    // Unknown origin
     const MADE_UNKNOWN = 0;
 
-    // منشأ ایرانی
+    // Iranian origin
     const MADE_IRANIAN = 1;
 
-    // منشأ خارجی
+    // Foreign origin
     const MADE_FOREIGN = 2;
 
     /**

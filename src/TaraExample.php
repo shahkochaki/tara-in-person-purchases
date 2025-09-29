@@ -5,80 +5,80 @@ namespace Shahkochaki\TaraService;
 use Illuminate\Support\Facades\Log;
 
 /**
- * نمونه استفاده از سرویس Tara
+ * Example usage of Tara service
  */
 class TaraExample
 {
     public function exampleUsage($barCode = null)
     {
-        // ایجاد نمونه سرویس
+        // Create service instance
         $taraService = new TaraService('1403');
 
-        // ورود به سیستم - توکن از accessCode دریافت می‌شود
+        // Login to system - token is retrieved from accessCode field
         $loginResult = $taraService->login();
         if (!$loginResult['success']) {
             return $loginResult;
         }
 
-        // دریافت کد دسترسی - لیست ترمینال‌ها
+        // Get access code - terminals list
         $accessCodeResult = $taraService->getAccessCode();
         if (!$accessCodeResult['success']) {
             return $accessCodeResult;
         }
 
-        // انتخاب ترمینال (روش ساده با متد کمکی)
-        $terminalCode = $taraService->getTerminalCodeFromResponse($accessCodeResult, 0); // صندوق اول
+        // Select terminal (simple method with helper)
+        $terminalCode = $taraService->getTerminalCodeFromResponse($accessCodeResult, 0); // First terminal
         if (!$terminalCode) {
             return ['success' => false, 'error' => 'No terminal available'];
         }
 
-        // یا دریافت لیست کامل ترمینال‌ها برای انتخاب دستی
+        // Alternative: Get complete terminals list for manual selection
         // $terminals = $taraService->getAvailableTerminals($accessCodeResult);
         // $terminalCode = $terminals[0]['terminalCode'];
 
-        // دریافت گروه‌های کالا
+        // Get merchandise groups
         $merchandiseGroupsResult = $taraService->getMerchandiseGroups();
         if (!$merchandiseGroupsResult['success']) {
             return $merchandiseGroupsResult;
         }
 
-        // ایجاد داده‌های پرداخت برای trace
+        // Create payment data for trace
         $paymentData = [
             $taraService->createTracePayment($barCode, 100_000, 0) // barcode is user ID
         ];
 
-        // trace خرید با terminal code واقعی
+        // Trace purchase with actual terminal code
         $traceResult = $taraService->purchaseTrace($paymentData, $terminalCode);
         if (!$traceResult['success']) {
             return $traceResult;
         }
 
-        // دریافت trace number از پاسخ trace
+        // Get trace number from trace response
         $traceNumber = $traceResult['data']['traceNumber'] ?? 'SAMPLE_TRACE_123';
 
-        // ایجاد آیتم‌های خرید
+        // Create purchase items
         $item1 = $taraService->createPurchaseItem(
-            'نام کالا',
-            'کد کالا',
+            'Product Name',
+            'Product Code',
             1.0,
-            5, // عدد
+            5, // Piece
             10000,
-            'گروه',
-            'عنوان گروه',
-            1, // ایرانی
+            'Group',
+            'Group Title',
+            1, // Iranian
             ''
         );
 
-        // ایجاد داده‌های فاکتور
+        // Create invoice data
         $invoiceData = $taraService->createInvoiceData(
             10000,
             'INV001',
             '',
-            1000, // مالیات
+            1000, // Tax
             [$item1]
         );
 
-        // ایجاد درخواست خرید کامل
+        // Create complete purchase request
         $purchaseRequestData = $taraService->createPurchaseRequestData(
             10000,
             'INV001',
@@ -86,13 +86,13 @@ class TaraExample
             [$invoiceData]
         );
 
-        // ارسال درخواست خرید با trace number
+        // Send purchase request with trace number
         $purchaseResult = $taraService->purchaseRequest($purchaseRequestData, $traceNumber);
         if (!$purchaseResult['success']) {
             return $purchaseResult;
         }
 
-        // تایید خرید با trace number
+        // Verify purchase with trace number
         $verifyResult = $taraService->purchaseVerify($traceNumber);
         if (!$verifyResult['success']) {
             return $verifyResult;
@@ -106,7 +106,7 @@ class TaraExample
         try {
             $taraService = new TaraService();
 
-            // ورود
+            // Login
             $result = $taraService->login();
             if (!$result['success']) {
                 throw new \Exception('Login failed: ' . $result['error']);

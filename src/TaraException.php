@@ -25,7 +25,7 @@ class TaraException extends Exception
     }
 
     /**
-     * دریافت داده‌های پاسخ API
+     * Get API response data
      */
     public function getResponseData(): ?array
     {
@@ -33,7 +33,7 @@ class TaraException extends Exception
     }
 
     /**
-     * دریافت کد وضعیت HTTP
+     * Get HTTP status code
      */
     public function getHttpStatusCode(): ?int
     {
@@ -41,7 +41,7 @@ class TaraException extends Exception
     }
 
     /**
-     * تبدیل به آرایه برای نمایش
+     * Convert to array for display
      */
     public function toArray(): array
     {
