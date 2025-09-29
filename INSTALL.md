@@ -8,19 +8,20 @@ Add this to your project's `composer.json`:
 
 ```json
 {
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/shahkochaki/tara-in-person-purchases.git"
-        }
-    ],
-    "require": {
-        "shahkochaki/tara-in-person-purchases": "dev-main"
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/shahkochaki/tara-in-person-purchases.git"
     }
+  ],
+  "require": {
+    "shahkochaki/tara-in-person-purchases": "dev-main"
+  }
 }
 ```
 
 Then run:
+
 ```bash
 composer install
 ```
@@ -34,12 +35,14 @@ composer require shahkochaki/tara-in-person-purchases
 ## Setup Steps for Packagist
 
 1. **Create GitHub Release**:
+
    ```bash
    git tag v1.0.0
    git push --tags
    ```
 
 2. **Submit to Packagist**:
+
    - Go to [https://packagist.org](https://packagist.org)
    - Click "Submit"
    - Enter: `https://github.com/shahkochaki/tara-in-person-purchases`
@@ -48,6 +51,7 @@ composer require shahkochaki/tara-in-person-purchases
 3. **Wait for sync** (can take 5-10 minutes)
 
 ## Current Status
+
 - ✅ GitHub Repository: Available
 - ⏳ Packagist: Pending registration
 - 🔄 Composer Install: Use GitHub method above
