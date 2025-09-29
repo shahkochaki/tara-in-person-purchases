@@ -35,23 +35,27 @@ composer require shahkochaki/tara-in-person-purchases
 ## Setup Steps for Packagist
 
 1. **Submit to Packagist**:
+
    - Go to [https://packagist.org](https://packagist.org)
    - Click "Submit"
    - Enter: `https://github.com/shahkochaki/tara-in-person-purchases`
 
 2. **Create GitHub Release**:
+
    ```bash
    git tag v1.0.0
    git push --tags
    ```
 
 3. **Setup Auto-Update Webhook**:
-   
+
    **Step 1**: Get Packagist API Token
+
    - Go to Packagist.org → Profile → Settings → API Token
    - Copy your API token
-   
+
    **Step 2**: Add GitHub Webhook
+
    - Go to your GitHub repository: `https://github.com/shahkochaki/tara-in-person-purchases`
    - Click **Settings** → **Webhooks** → **Add webhook**
    - Set these values:
@@ -63,6 +67,7 @@ composer require shahkochaki/tara-in-person-purchases
    - Click **Add webhook**
 
 4. **Alternative: Use Packagist Auto-Update Service**
+
    - In your Packagist package page, click "Enable Auto-Update"
    - Follow the instructions to set up GitHub Service Hook
 
