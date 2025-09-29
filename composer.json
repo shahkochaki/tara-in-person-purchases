@@ -1,0 +1,39 @@
+{
+    "name": "shahkochaki/tara-service",
+    "description": "Tara in-person purchase service for Laravel (Iranian credit card integration)",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Shahab Kochaki",
+            "email": "your-email@example.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.4",
+        "illuminate/support": ">=8.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.0|^10.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Shahkochaki\\TaraService\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Shahkochaki\\TaraService\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Shahkochaki\\TaraService\\TaraServiceProvider"
+            ]
+        }
+    }
+}
