@@ -73,33 +73,73 @@ composer install
 
 ## Configuration
 
-1. Publish the config file:
+### Quick Setup (Recommended)
+
+**1. Copy configuration files directly:**
+
+| File | Description | Quick Copy |
+|------|-------------|------------|
+| `.env` setup | Environment variables | [📋 Copy .env template](https://raw.githubusercontent.com/shahkochaki/tara-in-person-purchases/main/.env.example) |
+| Config file | Laravel configuration | [📋 Copy config/tara.php](https://raw.githubusercontent.com/shahkochaki/tara-in-person-purchases/main/config/tara.php) |
+
+**2. One-command setup:**
+
+```bash
+# Copy .env template
+curl -o .env.tara https://raw.githubusercontent.com/shahkochaki/tara-in-person-purchases/main/.env.example
+
+# Copy config file (Laravel)
+curl -o config/tara.php https://raw.githubusercontent.com/shahkochaki/tara-in-person-purchases/main/config/tara.php
+```
+
+### Manual Setup
+
+1. **Publish the config file (Laravel):**
 
 ```bash
 php artisan vendor:publish --provider="Shahkochaki\TaraService\TaraServiceProvider"
 ```
 
-2. Add your Tara credentials to `.env`:
+2. **Add your Tara credentials to `.env`:**
 
 ```env
+# Tara API Configuration
 TARA_BASE_URL=https://stage.tara-club.ir/club/api/v1
-TARA_USERNAME=your_username
-TARA_PASSWORD=your_password
-TARA_BRANCH_CODE=your_branch_code
+TARA_USERNAME=your_username_here
+TARA_PASSWORD=your_password_here  
+TARA_BRANCH_CODE=your_branch_code_here
 TARA_LOGGING=true
 ```
 
-3. (Optional) Configure in `config/tara.php`:
+> ⚠️ **Security Note**: Never commit your actual credentials to version control. Replace the placeholder values with your real Tara API credentials.
 
-```php
-return [
-    'base_url' => env('TARA_BASE_URL', 'https://stage.tara-club.ir/club/api/v1'),
-    'username' => env('TARA_USERNAME', ''),
-    'password' => env('TARA_PASSWORD', ''),
-    'branch_code' => env('TARA_BRANCH_CODE', ''),
-    'logging' => env('TARA_LOGGING', true),
-];
+### Configuration Options
+
+📚 **Detailed Configuration Guide**: [CONFIG_GUIDE.md](CONFIG_GUIDE.md)
+
+| Setting | Description | Default |
+|---------|-------------|---------|
+| `TARA_BASE_URL` | API base URL | `https://stage.tara-club.ir/club/api/v1` |
+| `TARA_USERNAME` | Your Tara username | **Required** |
+| `TARA_PASSWORD` | Your Tara password | **Required** |
+| `TARA_BRANCH_CODE` | Your branch code | **Required** |
+| `TARA_ENVIRONMENT` | Environment (staging/production) | `staging` |
+| `TARA_TOKEN_BUFFER` | Token expiry buffer (seconds) | `60` |
+| `TARA_LOGGING_ENABLED` | Enable logging | `true` |
+
+### Environment-Specific Configuration
+
+```bash
+# Development/Staging
+TARA_BASE_URL=https://stage.tara-club.ir/club/api/v1
+TARA_ENVIRONMENT=staging
+
+# Production  
+TARA_BASE_URL=https://api.tara-club.ir/club/api/v1
+TARA_ENVIRONMENT=production
 ```
+
+## Usage
 
 ## Usage
 
@@ -109,34 +149,84 @@ return [
 use Shahkochaki\TaraService\TaraService;
 use Shahkochaki\TaraService\TaraConstants;
 
-// Using dependency injection (recommended)
-$tara = app(TaraService::class);
+// Create instance (reads config automatically)
+$tara = new TaraService();
 
-// Or create manually
-$tara = new TaraService('branch_code', 'username', 'password');
+// Or with specific branch code
+$tara = new TaraService('your_branch_code');
+
+// Or with custom configuration
+$config = [
+    'credentials' => [
+        'username' => 'your_username',
+        'password' => 'your_password'
+    ],
+    'default_branch_code' => 'your_branch_code'
+];
+$tara = new TaraService('your_branch_code', $config);
 ```
 
-### Complete Purchase Flow
+> 📖 **Complete Setup Guide**: [SETUP_GUIDE.md](SETUP_GUIDE.md)
+
+### Quick Start (One Method)
 
 ```php
 try {
-    // 1. Login (automatic with first API call)
-    $loginResult = $tara->login();
+    $tara = new TaraService();
+    
+    // Customer barcode (one-time use from customer)
+    $customerBarcode = 9700083615425377; 
+    $amount = 100000; // 100,000 IRR
+    
+    // Payment data
+    $payment = [$tara->createTracePayment($customerBarcode, $amount, 0)];
+    
+    // Purchase items
+    $items = [
+        $tara->createPurchaseItem('نان سنگک', '12345', 2.0, 5, 50000, 'BAKERY', 'نانوایی', 1)
+    ];
+    
+    $invoiceData = $tara->createInvoiceData($amount, 'INV-' . time(), 'Purchase', 9000, $items);
+    $purchaseData = $tara->createPurchaseRequestData($amount, 'INV-' . time(), 'Test', $invoiceData);
+    
+    // Complete flow: login → terminals → trace → request → verify
+    $result = $tara->completePurchaseFlow($payment, $purchaseData);
+    
+    if ($result['success']) {
+        echo "Purchase successful! Trace: " . $result['traceNumber'];
+    } else {
+        echo "Purchase failed: " . $result['error'];
+    }
+    
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+    echo "\nPlease ensure credentials are set in .env file";
+}
+```
 
-    if (!$loginResult['success']) {
-        throw new Exception('Login failed: ' . $loginResult['error']);
+### Step-by-Step Implementation
+
+```php
+try {
+    // 1. Initialize session (login + get terminals)
+    $tara = new TaraService();
+    $sessionResult = $tara->initializeSession();
+
+    if (!$sessionResult['success']) {
+        throw new Exception('Session failed: ' . $sessionResult['error']);
     }
 
-    // 2. Get access code and select terminal
-    $accessCodeResult = $tara->getAccessCode();
-    $terminalCode = $tara->getTerminalCodeFromResponse($accessCodeResult, 0);
+    // 2. Select terminal (optional - uses first terminal if not selected)
+    $terminals = $tara->getTerminals();
+    $terminalCode = $terminals[0]['terminalCode'];
+    $tara->selectTerminal($terminalCode);
 
     // 3. Create payment trace for customer
-    $userId = 1234567890; // Customer's user ID
+    $customerBarcode = 9700083615425377; // From customer (one-time use)
     $amount = 500000; // Amount in IRR (Rials)
 
     $payment = [
-        $tara->createTracePayment($userId, $amount, 0) // userId, amount, discount
+        $tara->createTracePayment($customerBarcode, $amount, 0)
     ];
 
     $traceResult = $tara->purchaseTrace($payment, $terminalCode);
