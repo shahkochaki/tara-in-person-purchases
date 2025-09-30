@@ -31,43 +31,6 @@ $purchaseData = $tara->createPurchaseRequestData(100000, 'INV001', '', [$invoice
 $result = $tara->completePurchaseFlow($payment, $purchaseData, $terminalCode);
 ```
 
-### مشکل: عدم بررسی وضعیت عملیات
-
-**مثال کامل با بررسی خطا:**
-```php
-// بررسی session
-$session = $tara->initializeSession();
-if (!$session['success']) {
-    throw new Exception('Session failed: ' . $session['error']);
-}
-
-// بررسی terminal
-$accessCodeResult = $tara->getAccessCode();
-if (!$accessCodeResult['success']) {
-    throw new Exception('Access code failed: ' . $accessCodeResult['error']);
-}
-
-// ادامه عملیات...
-```
-
-### مشکل: استفاده از Constants اشتباه
-
-```php
-// ✅ استفاده صحیح از Constants
-use Shahkochaki\TaraService\TaraConstants;
-
-$item = $tara->createPurchaseItem(
-    'محصول',
-    'PROD001', 
-    1,
-    TaraConstants::UNIT_PIECE,  // نه عدد خام
-    100000,
-    'GROUP',
-    'گروه',
-    TaraConstants::MADE_IRANIAN // نه عدد خام
-);
-```
-
 **مثال کامل بدون خطا:** [TaraExampleFixed.php](./src/TaraExampleFixed.php)
 
 ## 📚 منابع و مستنداتreference) • [فارسی](#فارسی)
@@ -658,6 +621,8 @@ curl -o config/tara.php https://raw.githubusercontent.com/shahkochaki/tara-in-pe
 | پیکربندی محیطی   | استفاده از env variables | [TaraExampleUpdated.php](./src/TaraExampleUpdated.php) |
 | پیکربندی پیشرفته | استفاده از config arrays | [TaraConfigExample.php](./src/TaraConfigExample.php)   |
 | **کد اصلاح شده** | **رفع مشکل purchaseData** | [**TaraExampleFixed.php**](./src/TaraExampleFixed.php) |
+| پیکربندی محیطی   | استفاده از env variables | [TaraExampleUpdated.php](./src/TaraExampleUpdated.php) |
+| پیکربندی پیشرفته | استفاده از config arrays | [TaraConfigExample.php](./src/TaraConfigExample.php)   |
 
 ## �📄 مستندات کامل فارسی
 
