@@ -547,17 +547,19 @@ $verifyResult = $tara->purchaseVerify($traceNumber);
 ## � منابع و مستندات
 
 ### فایل‌های پیکربندی
-| نوع فایل | توضیحات | لینک مستقیم برای کپی |
-|----------|---------|------------------|
-| `.env` | متغیرهای محیطی | [کپی فایل .env](https://raw.githubusercontent.com/shahkochaki/tara-in-person-purchases/main/.env.example) |
+
+| نوع فایل          | توضیحات          | لینک مستقیم برای کپی                                                                                           |
+| ----------------- | ---------------- | -------------------------------------------------------------------------------------------------------------- |
+| `.env`            | متغیرهای محیطی   | [کپی فایل .env](https://raw.githubusercontent.com/shahkochaki/tara-in-person-purchases/main/.env.example)      |
 | `config/tara.php` | پیکربندی Laravel | [کپی فایل config](https://raw.githubusercontent.com/shahkochaki/tara-in-person-purchases/main/config/tara.php) |
 
 ### راهنماهای تخصصی
-| موضوع | توضیحات | فایل |
-|-------|---------|------|
-| نصب و راه‌اندازی | راهنمای گام به گام نصب | [SETUP_GUIDE.md](./docs/SETUP_GUIDE.md) |
-| پیکربندی سیستم | تنظیمات پیشرفته | [CONFIG_GUIDE.md](./docs/CONFIG_GUIDE.md) |
-| جریان کاری API | توضیح کامل فرآیند | [API_FLOW_GUIDE.md](./docs/API_FLOW_GUIDE.md) |
+
+| موضوع            | توضیحات                | فایل                                          |
+| ---------------- | ---------------------- | --------------------------------------------- |
+| نصب و راه‌اندازی | راهنمای گام به گام نصب | [SETUP_GUIDE.md](./docs/SETUP_GUIDE.md)       |
+| پیکربندی سیستم   | تنظیمات پیشرفته        | [CONFIG_GUIDE.md](./docs/CONFIG_GUIDE.md)     |
+| جریان کاری API   | توضیح کامل فرآیند      | [API_FLOW_GUIDE.md](./docs/API_FLOW_GUIDE.md) |
 
 ### دستورات سریع برای شروع
 
@@ -571,11 +573,12 @@ curl -o config/tara.php https://raw.githubusercontent.com/shahkochaki/tara-in-pe
 ```
 
 ### نمونه کدهای عملی
-| نوع کد | توضیحات | فایل |
-|--------|---------|------|
-| استفاده ساده | مثال کلی از سرویس | [TaraExample.php](./src/TaraExample.php) |
-| پیکربندی محیطی | استفاده از env variables | [TaraExampleUpdated.php](./src/TaraExampleUpdated.php) |
-| پیکربندی پیشرفته | استفاده از config arrays | [TaraConfigExample.php](./src/TaraConfigExample.php) |
+
+| نوع کد           | توضیحات                  | فایل                                                   |
+| ---------------- | ------------------------ | ------------------------------------------------------ |
+| استفاده ساده     | مثال کلی از سرویس        | [TaraExample.php](./src/TaraExample.php)               |
+| پیکربندی محیطی   | استفاده از env variables | [TaraExampleUpdated.php](./src/TaraExampleUpdated.php) |
+| پیکربندی پیشرفته | استفاده از config arrays | [TaraConfigExample.php](./src/TaraConfigExample.php)   |
 
 ## �📄 مستندات کامل فارسی
 
