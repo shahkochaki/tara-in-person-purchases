@@ -77,10 +77,10 @@ composer install
 
 **1. Copy configuration files directly:**
 
-| File | Description | Quick Copy |
-|------|-------------|------------|
-| `.env` setup | Environment variables | [📋 Copy .env template](https://raw.githubusercontent.com/shahkochaki/tara-in-person-purchases/main/.env.example) |
-| Config file | Laravel configuration | [📋 Copy config/tara.php](https://raw.githubusercontent.com/shahkochaki/tara-in-person-purchases/main/config/tara.php) |
+| File         | Description           | Quick Copy                                                                                                             |
+| ------------ | --------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `.env` setup | Environment variables | [📋 Copy .env template](https://raw.githubusercontent.com/shahkochaki/tara-in-person-purchases/main/.env.example)      |
+| Config file  | Laravel configuration | [📋 Copy config/tara.php](https://raw.githubusercontent.com/shahkochaki/tara-in-person-purchases/main/config/tara.php) |
 
 **2. One-command setup:**
 
@@ -106,7 +106,7 @@ php artisan vendor:publish --provider="Shahkochaki\TaraService\TaraServiceProvid
 # Tara API Configuration
 TARA_BASE_URL=https://stage.tara-club.ir/club/api/v1
 TARA_USERNAME=your_username_here
-TARA_PASSWORD=your_password_here  
+TARA_PASSWORD=your_password_here
 TARA_BRANCH_CODE=your_branch_code_here
 TARA_LOGGING=true
 ```
@@ -117,15 +117,15 @@ TARA_LOGGING=true
 
 📚 **Detailed Configuration Guide**: [CONFIG_GUIDE.md](CONFIG_GUIDE.md)
 
-| Setting | Description | Default |
-|---------|-------------|---------|
-| `TARA_BASE_URL` | API base URL | `https://stage.tara-club.ir/club/api/v1` |
-| `TARA_USERNAME` | Your Tara username | **Required** |
-| `TARA_PASSWORD` | Your Tara password | **Required** |
-| `TARA_BRANCH_CODE` | Your branch code | **Required** |
-| `TARA_ENVIRONMENT` | Environment (staging/production) | `staging` |
-| `TARA_TOKEN_BUFFER` | Token expiry buffer (seconds) | `60` |
-| `TARA_LOGGING_ENABLED` | Enable logging | `true` |
+| Setting                | Description                      | Default                                  |
+| ---------------------- | -------------------------------- | ---------------------------------------- |
+| `TARA_BASE_URL`        | API base URL                     | `https://stage.tara-club.ir/club/api/v1` |
+| `TARA_USERNAME`        | Your Tara username               | **Required**                             |
+| `TARA_PASSWORD`        | Your Tara password               | **Required**                             |
+| `TARA_BRANCH_CODE`     | Your branch code                 | **Required**                             |
+| `TARA_ENVIRONMENT`     | Environment (staging/production) | `staging`                                |
+| `TARA_TOKEN_BUFFER`    | Token expiry buffer (seconds)    | `60`                                     |
+| `TARA_LOGGING_ENABLED` | Enable logging                   | `true`                                   |
 
 ### Environment-Specific Configuration
 
@@ -134,7 +134,7 @@ TARA_LOGGING=true
 TARA_BASE_URL=https://stage.tara-club.ir/club/api/v1
 TARA_ENVIRONMENT=staging
 
-# Production  
+# Production
 TARA_BASE_URL=https://api.tara-club.ir/club/api/v1
 TARA_ENVIRONMENT=production
 ```
@@ -173,31 +173,31 @@ $tara = new TaraService('your_branch_code', $config);
 ```php
 try {
     $tara = new TaraService();
-    
+
     // Customer barcode (one-time use from customer)
-    $customerBarcode = 9700083615425377; 
+    $customerBarcode = 9700083615425377;
     $amount = 100000; // 100,000 IRR
-    
+
     // Payment data
     $payment = [$tara->createTracePayment($customerBarcode, $amount, 0)];
-    
+
     // Purchase items
     $items = [
         $tara->createPurchaseItem('نان سنگک', '12345', 2.0, 5, 50000, 'BAKERY', 'نانوایی', 1)
     ];
-    
+
     $invoiceData = $tara->createInvoiceData($amount, 'INV-' . time(), 'Purchase', 9000, $items);
     $purchaseData = $tara->createPurchaseRequestData($amount, 'INV-' . time(), 'Test', $invoiceData);
-    
+
     // Complete flow: login → terminals → trace → request → verify
     $result = $tara->completePurchaseFlow($payment, $purchaseData);
-    
+
     if ($result['success']) {
         echo "Purchase successful! Trace: " . $result['traceNumber'];
     } else {
         echo "Purchase failed: " . $result['error'];
     }
-    
+
 } catch (Exception $e) {
     echo "Error: " . $e->getMessage();
     echo "\nPlease ensure credentials are set in .env file";
@@ -544,7 +544,40 @@ $requestResult = $tara->purchaseRequest($purchaseData, $traceNumber);
 $verifyResult = $tara->purchaseVerify($traceNumber);
 ```
 
-## 📄 مستندات کامل فارسی
+## � منابع و مستندات
+
+### فایل‌های پیکربندی
+| نوع فایل | توضیحات | لینک مستقیم برای کپی |
+|----------|---------|------------------|
+| `.env` | متغیرهای محیطی | [کپی فایل .env](https://raw.githubusercontent.com/shahkochaki/tara-in-person-purchases/main/.env.example) |
+| `config/tara.php` | پیکربندی Laravel | [کپی فایل config](https://raw.githubusercontent.com/shahkochaki/tara-in-person-purchases/main/config/tara.php) |
+
+### راهنماهای تخصصی
+| موضوع | توضیحات | فایل |
+|-------|---------|------|
+| نصب و راه‌اندازی | راهنمای گام به گام نصب | [SETUP_GUIDE.md](./docs/SETUP_GUIDE.md) |
+| پیکربندی سیستم | تنظیمات پیشرفته | [CONFIG_GUIDE.md](./docs/CONFIG_GUIDE.md) |
+| جریان کاری API | توضیح کامل فرآیند | [API_FLOW_GUIDE.md](./docs/API_FLOW_GUIDE.md) |
+
+### دستورات سریع برای شروع
+
+```bash
+# کپی فایل پیکربندی محیطی
+curl -o .env https://raw.githubusercontent.com/shahkochaki/tara-in-person-purchases/main/.env.example
+
+# کپی فایل پیکربندی Laravel (اختیاری)
+mkdir -p config
+curl -o config/tara.php https://raw.githubusercontent.com/shahkochaki/tara-in-person-purchases/main/config/tara.php
+```
+
+### نمونه کدهای عملی
+| نوع کد | توضیحات | فایل |
+|--------|---------|------|
+| استفاده ساده | مثال کلی از سرویس | [TaraExample.php](./src/TaraExample.php) |
+| پیکربندی محیطی | استفاده از env variables | [TaraExampleUpdated.php](./src/TaraExampleUpdated.php) |
+| پیکربندی پیشرفته | استفاده از config arrays | [TaraConfigExample.php](./src/TaraConfigExample.php) |
+
+## �📄 مستندات کامل فارسی
 
 برای راهنمای کامل و مستندات فارسی، فایل زیر را مشاهده کنید:
 
