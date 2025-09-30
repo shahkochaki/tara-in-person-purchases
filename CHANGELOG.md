@@ -5,6 +5,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2025-09-30
+
+### Added
+
+- Terminal token authentication for all purchase operations
+- TaraExampleFixed.php with complete purchaseData solution
+- Troubleshooting section in README for common issues
+- Enhanced documentation with direct GitHub raw file links
+- Quick setup commands with curl for configuration files
+- Comprehensive error handling examples
+
+### Changed
+
+- **BREAKING**: Purchase operations now use terminal tokens instead of user tokens
+- purchaseRequest() now accepts optional terminalCode parameter
+- purchaseVerify() now accepts optional terminalCode parameter  
+- purchaseReverse() now accepts optional terminalCode parameter
+- purchaseInquiry() now accepts optional terminalCode parameter
+- completePurchaseFlow() updated to pass terminalCode to all operations
+- Improved API compliance with Tara360 specifications
+
+### Fixed
+
+- Fixed undefined purchaseData issue in examples
+- Resolved security concerns with proper token usage
+- Added missing purchase data creation steps in documentation
+- Enhanced terminal access code validation
+
+### Security
+
+- Implemented terminal-specific authentication tokens
+- Improved security isolation between terminals
+- Enhanced API compliance for secure transactions
+
+### Documentation
+
+- Updated API reference with new terminal token requirements
+- Added comprehensive troubleshooting guide
+- Enhanced README with direct configuration copy links
+- Improved examples with proper error handling
+- Added security notes about terminal token usage
+
 ## [2.0.0] - 2025-09-30
 
 ### Added
