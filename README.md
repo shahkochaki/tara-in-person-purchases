@@ -454,6 +454,12 @@ $requestResult = $tara->purchaseRequest($purchaseData, $traceNumber);
 $verifyResult = $tara->purchaseVerify($traceNumber);
 ```
 
+## 📄 مستندات کامل فارسی
+
+برای راهنمای کامل و مستندات فارسی، فایل زیر را مشاهده کنید:
+
+[دانلود مستندات فارسی (Persian-document.pdf)](./Persian-document.pdf)
+
 ## پشتیبانی
 
 - **تلفن**: ۱۵۷۳ (۷ روز هفته، ۲۴ ساعته)
