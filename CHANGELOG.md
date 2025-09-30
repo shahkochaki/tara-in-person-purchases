@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **BREAKING**: Purchase operations now use terminal tokens instead of user tokens
 - purchaseRequest() now accepts optional terminalCode parameter
-- purchaseVerify() now accepts optional terminalCode parameter  
+- purchaseVerify() now accepts optional terminalCode parameter
 - purchaseReverse() now accepts optional terminalCode parameter
 - purchaseInquiry() now accepts optional terminalCode parameter
 - completePurchaseFlow() updated to pass terminalCode to all operations

@@ -359,7 +359,8 @@ $result = $tara->purchaseInquiry($referenceOrTraceNumber, $terminalCode);
 ```
 
 > **Important Note**: All purchase operations (`purchaseRequest`, `purchaseVerify`, `purchaseReverse`, `purchaseInquiry`) now use **terminal tokens** instead of user tokens for better security and API compliance. Terminal code is optional - if not provided, the service will use the selected terminal or first available terminal.
-```
+
+````
 
 ### Helper Methods
 
@@ -375,7 +376,7 @@ $invoice = $tara->createInvoiceData($totalAmount, $invoiceNumber, $description, 
 
 // Create complete purchase request data
 $purchaseData = $tara->createPurchaseRequestData($totalAmount, $invoiceNumber, $description, $invoices);
-```
+````
 
 ### Constants
 
