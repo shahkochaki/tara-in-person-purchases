@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2025-09-30
+
+### Added
+- Complete configuration management system
+- Support for custom configuration arrays
+- Runtime configuration updates
+- Environment variables support (.env)
+- Configuration validation and error handling
+- Multiple configuration examples and guides
+- Terminal session management
+- Token expiry validation with buffer
+- Complete purchase flow method
+- Enhanced security with no hardcoded credentials
+
+### Changed
+- **BREAKING**: Constructor now requires credentials via config or environment variables
+- Improved API flow following exact Tara specifications
+- Enhanced terminal management with proper access codes
+- Better error handling and validation
+- Updated examples with security best practices
+
+### Security
+- Removed all hardcoded sensitive information
+- Implemented proper credential management
+- Added configuration validation
+- Enhanced security documentation
+
+### Documentation
+- Added comprehensive API_FLOW_GUIDE.md
+- Added CONFIG_GUIDE.md for configuration management
+- Added SETUP_GUIDE.md for initial setup
+- Updated examples with security considerations
+- Enhanced inline documentation
+
 ## [1.0.0] - 2025-01-29
 
 ### Added
