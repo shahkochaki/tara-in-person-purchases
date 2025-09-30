@@ -12,14 +12,55 @@ class TaraService
     private string $username;
     private string $password;
     private ?string $token = null;
+    private ?int $tokenExpiresAt = null;
     private string $branchCode;
+    private array $terminals = [];
+    private ?string $selectedTerminalCode = null;
+    private array $config;
 
-    public function __construct(string $branchCode = '1403')
+    public function __construct(string $branchCode = null, array $config = null)
     {
-        $this->baseUrl = 'https://stage.tara-club.ir/club/api/v1';
-        $this->username = 'cashdesk_sandbox';
-        $this->password = '1qaz@WSX';
-        $this->branchCode = $branchCode;
+        // Load configuration
+        $this->config = $config ?? $this->loadConfig();
+
+        $this->baseUrl = $this->config['base_url'] ?? 'https://stage.tara-club.ir/club/api/v1';
+        $this->username = $this->config['credentials']['username'] ?? $this->config['username'] ?? '';
+        $this->password = $this->config['credentials']['password'] ?? $this->config['password'] ?? '';
+        $this->branchCode = $branchCode ?? $this->config['default_branch_code'] ?? $this->config['branch_code'] ?? '';
+
+        // Validate required credentials
+        if (empty($this->username) || empty($this->password) || empty($this->branchCode)) {
+            throw new Exception('Required credentials (username, password, branch_code) are missing. Please set them in config or environment variables.');
+        }
+    }
+
+    /**
+     * Load configuration from file or return defaults
+     */
+    private function loadConfig(): array
+    {
+        $configPath = __DIR__ . '/../config/tara.php';
+
+        if (file_exists($configPath)) {
+            $config = include $configPath;
+            return is_array($config) ? $config : [];
+        }
+
+        // Default configuration if file doesn't exist - NO SENSITIVE DEFAULTS
+        return [
+            'base_url' => 'https://stage.tara-club.ir/club/api/v1',
+            'credentials' => [
+                'username' => '',
+                'password' => '',
+            ],
+            'default_branch_code' => '',
+            'token' => [
+                'buffer_seconds' => 60,
+            ],
+            'logging' => [
+                'enabled' => true,
+            ],
+        ];
     }
 
     /**
@@ -37,10 +78,16 @@ class TaraService
                 $data = $response->json();
                 $this->token = $data['accessCode'] ?? null;
 
+                // Calculate token expiry time (expiryDuration is in milliseconds)
+                if (isset($data['expiryDuration'])) {
+                    $this->tokenExpiresAt = time() + (int)($data['expiryDuration'] / 1000);
+                }
+
                 return [
                     'success' => true,
                     'data' => $data,
-                    'token' => $this->token
+                    'token' => $this->token,
+                    'expiresAt' => $this->tokenExpiresAt
                 ];
             }
 
@@ -60,13 +107,38 @@ class TaraService
     }
 
     /**
+     * Check if current token is valid and not expired
+     */
+    private function isTokenValid(): bool
+    {
+        $bufferSeconds = $this->config['token']['buffer_seconds'] ?? 60;
+
+        return $this->token &&
+            $this->tokenExpiresAt &&
+            time() < ($this->tokenExpiresAt - $bufferSeconds);
+    }
+
+    /**
+     * Get terminal access code for a specific terminal
+     */
+    private function getTerminalAccessCode(string $terminalCode): ?string
+    {
+        foreach ($this->terminals as $terminal) {
+            if ($terminal['terminalCode'] === $terminalCode) {
+                return $terminal['accessCode'] ?? null;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Get access code for branch
      */
     public function getAccessCode(string $branchCode = null): array
     {
         $branchCode = $branchCode ?? $this->branchCode;
 
-        if (!$this->token) {
+        if (!$this->isTokenValid()) {
             $loginResult = $this->login();
             if (!$loginResult['success']) {
                 return $loginResult;
@@ -80,9 +152,14 @@ class TaraService
                 ]);
 
             if ($response->successful()) {
+                $terminals = $response->json();
+
+                // Store terminals for later use
+                $this->terminals = $terminals;
+
                 return [
                     'success' => true,
-                    'data' => $response->json()
+                    'data' => $terminals
                 ];
             }
 
@@ -147,19 +224,34 @@ class TaraService
      */
     public function purchaseTrace(array $payment, string $terminalCode = null): array
     {
-        $terminalCode = $terminalCode ?? $this->branchCode;
-
-        if (!$this->token) {
-            $loginResult = $this->login();
-            if (!$loginResult['success']) {
-                return $loginResult;
+        // If no terminal code provided, use the selected one or first available
+        if (!$terminalCode) {
+            $terminalCode = $this->selectedTerminalCode;
+            if (!$terminalCode && !empty($this->terminals)) {
+                $terminalCode = $this->terminals[0]['terminalCode'] ?? null;
             }
         }
 
+        if (!$terminalCode) {
+            return [
+                'success' => false,
+                'error' => 'Terminal code not provided and no terminals available'
+            ];
+        }
+
+        // Get the terminal access token for this terminal
+        $terminalToken = $this->getTerminalAccessCode($terminalCode);
+        if (!$terminalToken) {
+            return [
+                'success' => false,
+                'error' => 'Terminal access code not found for terminal: ' . $terminalCode
+            ];
+        }
+
         try {
-            $response = Http::withToken($this->token)
+            $response = Http::withToken($terminalToken)
                 ->post("{$this->baseUrl}/purchase/trace/{$terminalCode}", [
-                    'terminalCode' => $terminalCode,
+                    'terminalCode' => (int)$terminalCode,
                     'payment' => $payment
                 ]);
 
@@ -501,5 +593,271 @@ class TaraService
         }
 
         return $accessCodeResponse['data'] ?? [];
+    }
+
+    /**
+     * Select a terminal by terminal code
+     * 
+     * @param string $terminalCode Terminal code to select
+     * @return bool True if terminal was found and selected
+     */
+    public function selectTerminal(string $terminalCode): bool
+    {
+        foreach ($this->terminals as $terminal) {
+            if ($terminal['terminalCode'] === $terminalCode) {
+                $this->selectedTerminalCode = $terminalCode;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Get currently selected terminal info
+     * 
+     * @return array|null Terminal info or null if none selected
+     */
+    public function getSelectedTerminal(): ?array
+    {
+        if (!$this->selectedTerminalCode) {
+            return null;
+        }
+
+        foreach ($this->terminals as $terminal) {
+            if ($terminal['terminalCode'] === $this->selectedTerminalCode) {
+                return $terminal;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Get all stored terminals
+     * 
+     * @return array Array of terminals
+     */
+    public function getTerminals(): array
+    {
+        return $this->terminals;
+    }
+
+    /**
+     * Get merchant code from selected terminal or first available terminal
+     * 
+     * @return string|null Merchant code or null if not available
+     */
+    public function getMerchantCode(): ?string
+    {
+        $terminal = $this->getSelectedTerminal();
+        if (!$terminal && !empty($this->terminals)) {
+            $terminal = $this->terminals[0];
+        }
+
+        return $terminal['merchantCode'] ?? null;
+    }
+
+    /**
+     * Initialize complete session: login + get terminals
+     * 
+     * @param string|null $branchCode Branch code to use
+     * @return array Result with success status and data
+     */
+    public function initializeSession(string $branchCode = null): array
+    {
+        // Step 1: Login
+        $loginResult = $this->login();
+        if (!$loginResult['success']) {
+            return $loginResult;
+        }
+
+        // Step 2: Get terminals
+        $accessResult = $this->getAccessCode($branchCode);
+        if (!$accessResult['success']) {
+            return $accessResult;
+        }
+
+        return [
+            'success' => true,
+            'login' => $loginResult,
+            'terminals' => $accessResult,
+            'availableTerminals' => $this->terminals
+        ];
+    }
+
+    /**
+     * Complete purchase flow: trace -> request -> verify
+     * 
+     * @param array $payment Payment data for trace
+     * @param array $purchaseData Purchase request data
+     * @param string|null $terminalCode Terminal code to use
+     * @return array Complete flow result
+     */
+    public function completePurchaseFlow(array $payment, array $purchaseData, string $terminalCode = null): array
+    {
+        // Step 1: Purchase trace
+        $traceResult = $this->purchaseTrace($payment, $terminalCode);
+        if (!$traceResult['success']) {
+            return [
+                'success' => false,
+                'error' => 'Purchase trace failed',
+                'details' => $traceResult
+            ];
+        }
+
+        $traceNumber = $traceResult['data']['traceNumber'] ?? null;
+        if (!$traceNumber) {
+            return [
+                'success' => false,
+                'error' => 'Trace number not found in response',
+                'details' => $traceResult
+            ];
+        }
+
+        // Step 2: Purchase request
+        $requestResult = $this->purchaseRequest($purchaseData, $traceNumber);
+        if (!$requestResult['success']) {
+            return [
+                'success' => false,
+                'error' => 'Purchase request failed',
+                'trace' => $traceResult,
+                'details' => $requestResult
+            ];
+        }
+
+        // Step 3: Purchase verify
+        $verifyResult = $this->purchaseVerify($traceNumber);
+
+        return [
+            'success' => $verifyResult['success'],
+            'trace' => $traceResult,
+            'request' => $requestResult,
+            'verify' => $verifyResult,
+            'traceNumber' => $traceNumber
+        ];
+    }
+
+    /**
+     * Get configuration value
+     * 
+     * @param string $key Configuration key (dot notation supported)
+     * @param mixed $default Default value if key not found
+     * @return mixed Configuration value
+     */
+    public function getConfig(string $key = null, $default = null)
+    {
+        if ($key === null) {
+            return $this->config;
+        }
+
+        $keys = explode('.', $key);
+        $value = $this->config;
+
+        foreach ($keys as $k) {
+            if (!is_array($value) || !array_key_exists($k, $value)) {
+                return $default;
+            }
+            $value = $value[$k];
+        }
+
+        return $value;
+    }
+
+    /**
+     * Set configuration value
+     * 
+     * @param string $key Configuration key (dot notation supported)
+     * @param mixed $value Value to set
+     * @return void
+     */
+    public function setConfig(string $key, $value): void
+    {
+        $keys = explode('.', $key);
+        $config = &$this->config;
+
+        foreach ($keys as $k) {
+            if (!isset($config[$k]) || !is_array($config[$k])) {
+                $config[$k] = [];
+            }
+            $config = &$config[$k];
+        }
+
+        $config = $value;
+    }
+
+    /**
+     * Update credentials
+     * 
+     * @param string $username New username
+     * @param string $password New password
+     * @return void
+     */
+    public function updateCredentials(string $username, string $password): void
+    {
+        $this->username = $username;
+        $this->password = $password;
+        $this->setConfig('credentials.username', $username);
+        $this->setConfig('credentials.password', $password);
+
+        // Clear token to force re-login
+        $this->token = null;
+        $this->tokenExpiresAt = null;
+    }
+
+    /**
+     * Update base URL
+     * 
+     * @param string $baseUrl New base URL
+     * @return void
+     */
+    public function updateBaseUrl(string $baseUrl): void
+    {
+        $this->baseUrl = rtrim($baseUrl, '/');
+        $this->setConfig('base_url', $this->baseUrl);
+    }
+
+    /**
+     * Get current credentials
+     * 
+     * @return array Current username and password (password masked)
+     */
+    public function getCredentials(): array
+    {
+        return [
+            'username' => $this->username,
+            'password' => '***masked***'
+        ];
+    }
+
+    /**
+     * Get current base URL
+     * 
+     * @return string Current base URL
+     */
+    public function getBaseUrl(): string
+    {
+        return $this->baseUrl;
+    }
+
+    /**
+     * Check if logging is enabled
+     * 
+     * @return bool Whether logging is enabled
+     */
+    public function isLoggingEnabled(): bool
+    {
+        return $this->getConfig('logging.enabled', true);
+    }
+
+    /**
+     * Get timeout settings
+     * 
+     * @return array Timeout configuration
+     */
+    public function getTimeoutSettings(): array
+    {
+        return $this->getConfig('timeout', [
+            'connect' => 30,
+            'request' => 60
+        ]);
     }
 }

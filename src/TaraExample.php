@@ -9,10 +9,10 @@ use Illuminate\Support\Facades\Log;
  */
 class TaraExample
 {
-    public function exampleUsage($barCode = null)
+    public function exampleUsage($branchCode = null, $barCode = null)
     {
         // Create service instance
-        $taraService = new TaraService('1403');
+        $taraService = new TaraService($branchCode);
 
         // Login to system - token is retrieved from accessCode field
         $loginResult = $taraService->login();
@@ -112,8 +112,7 @@ class TaraExample
                 throw new \Exception('Login failed: ' . $result['error']);
             }
 
-            // سایر عملیات...
-
+            // Further operations...
         } catch (\Exception $e) {
             Log::error('Tara Service Error: ' . $e->getMessage());
             return [
