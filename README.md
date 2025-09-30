@@ -10,7 +10,8 @@
 **A Laravel package specifically designed for Tara360 in-person purchase integration - handles credit payments for physical stores and POS terminals**
 
 [Installation](#installation) • [Configuration](#configuration) • [Usage](#usage) • [API Reference](#$verifyResult = $tara->purchaseVerify($traceNumber);
-```
+
+````
 
 ## ⚠️ مشکلات معمول و راه‌حل‌ها
 
@@ -20,9 +21,10 @@
 ```php
 // ❌ اشتباه - purchaseData وجود ندارد
 $result = $tara->completePurchaseFlow($payment, $purchaseData, $terminalCode);
-```
+````
 
 **راه‌حل صحیح:**
+
 ```php
 // ✅ درست - ساخت purchaseData کامل
 $item = $tara->createPurchaseItem('نام محصول', 'کد', 1, TaraConstants::UNIT_PIECE, 100000, 'گروه', 'عنوان', TaraConstants::MADE_IRANIAN);
@@ -615,14 +617,14 @@ curl -o config/tara.php https://raw.githubusercontent.com/shahkochaki/tara-in-pe
 
 ### نمونه کدهای عملی
 
-| نوع کد           | توضیحات                  | فایل                                                   |
-| ---------------- | ------------------------ | ------------------------------------------------------ |
-| استفاده ساده     | مثال کلی از سرویس        | [TaraExample.php](./src/TaraExample.php)               |
-| پیکربندی محیطی   | استفاده از env variables | [TaraExampleUpdated.php](./src/TaraExampleUpdated.php) |
-| پیکربندی پیشرفته | استفاده از config arrays | [TaraConfigExample.php](./src/TaraConfigExample.php)   |
+| نوع کد           | توضیحات                   | فایل                                                   |
+| ---------------- | ------------------------- | ------------------------------------------------------ |
+| استفاده ساده     | مثال کلی از سرویس         | [TaraExample.php](./src/TaraExample.php)               |
+| پیکربندی محیطی   | استفاده از env variables  | [TaraExampleUpdated.php](./src/TaraExampleUpdated.php) |
+| پیکربندی پیشرفته | استفاده از config arrays  | [TaraConfigExample.php](./src/TaraConfigExample.php)   |
 | **کد اصلاح شده** | **رفع مشکل purchaseData** | [**TaraExampleFixed.php**](./src/TaraExampleFixed.php) |
-| پیکربندی محیطی   | استفاده از env variables | [TaraExampleUpdated.php](./src/TaraExampleUpdated.php) |
-| پیکربندی پیشرفته | استفاده از config arrays | [TaraConfigExample.php](./src/TaraConfigExample.php)   |
+| پیکربندی محیطی   | استفاده از env variables  | [TaraExampleUpdated.php](./src/TaraExampleUpdated.php) |
+| پیکربندی پیشرفته | استفاده از config arrays  | [TaraConfigExample.php](./src/TaraConfigExample.php)   |
 
 ## �📄 مستندات کامل فارسی
 

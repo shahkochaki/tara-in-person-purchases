@@ -9,7 +9,7 @@ use Shahkochaki\TaraService\TaraConstants;
  * نمونه کد اصلاح شده برای فرآیند کامل خرید تارا
  * این کد مشکل purchaseData را حل می‌کند
  */
-class TaraExampleFixed 
+class TaraExampleFixed
 {
     /**
      * فرآیند کامل خرید با تمام مراحل ضروری
@@ -98,7 +98,7 @@ class TaraExampleFixed
     public function simplePurchaseProcess(string $branchCode, string $userBarcode, int $amount): array
     {
         $tara = new TaraService($branchCode);
-        
+
         // راه‌اندازی
         $session = $tara->initializeSession();
         if (!$session['success']) {
