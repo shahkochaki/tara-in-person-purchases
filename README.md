@@ -9,7 +9,68 @@
 
 **A Laravel package specifically designed for Tara360 in-person purchase integration - handles credit payments for physical stores and POS terminals**
 
-[Installation](#installation) • [Configuration](#configuration) • [Usage](#usage) • [API Reference](#api-reference) • [فارسی](#فارسی)
+[Installation](#installation) • [Configuration](#configuration) • [Usage](#usage) • [API Reference](#$verifyResult = $tara->purchaseVerify($traceNumber);
+```
+
+## ⚠️ مشکلات معمول و راه‌حل‌ها
+
+### مشکل: `purchaseData` تعریف نشده
+
+**خطای معمول:**
+```php
+// ❌ اشتباه - purchaseData وجود ندارد
+$result = $tara->completePurchaseFlow($payment, $purchaseData, $terminalCode);
+```
+
+**راه‌حل صحیح:**
+```php
+// ✅ درست - ساخت purchaseData کامل
+$item = $tara->createPurchaseItem('نام محصول', 'کد', 1, TaraConstants::UNIT_PIECE, 100000, 'گروه', 'عنوان', TaraConstants::MADE_IRANIAN);
+$invoiceData = $tara->createInvoiceData(100000, 'INV001', '', 9000, [$item]);
+$purchaseData = $tara->createPurchaseRequestData(100000, 'INV001', '', [$invoiceData]);
+$result = $tara->completePurchaseFlow($payment, $purchaseData, $terminalCode);
+```
+
+### مشکل: عدم بررسی وضعیت عملیات
+
+**مثال کامل با بررسی خطا:**
+```php
+// بررسی session
+$session = $tara->initializeSession();
+if (!$session['success']) {
+    throw new Exception('Session failed: ' . $session['error']);
+}
+
+// بررسی terminal
+$accessCodeResult = $tara->getAccessCode();
+if (!$accessCodeResult['success']) {
+    throw new Exception('Access code failed: ' . $accessCodeResult['error']);
+}
+
+// ادامه عملیات...
+```
+
+### مشکل: استفاده از Constants اشتباه
+
+```php
+// ✅ استفاده صحیح از Constants
+use Shahkochaki\TaraService\TaraConstants;
+
+$item = $tara->createPurchaseItem(
+    'محصول',
+    'PROD001', 
+    1,
+    TaraConstants::UNIT_PIECE,  // نه عدد خام
+    100000,
+    'GROUP',
+    'گروه',
+    TaraConstants::MADE_IRANIAN // نه عدد خام
+);
+```
+
+**مثال کامل بدون خطا:** [TaraExampleFixed.php](./src/TaraExampleFixed.php)
+
+## 📚 منابع و مستنداتreference) • [فارسی](#فارسی)
 
 </div>
 
@@ -529,18 +590,35 @@ $traceNumber = $traceResult['data']['traceNumber'];
 $item = $tara->createPurchaseItem(
     'محصول پریمیم',                // نام محصول
     'PROD001',                  // کد محصول
-    TaraConstants::UNIT_PIECE,  // نوع واحد
     ۲,                          // تعداد
+    TaraConstants::UNIT_PIECE,  // نوع واحد
     ۲۵۰۰۰۰,                     // قیمت واحد (ریال)
     'ELECTRONICS',              // کد گروه
     'الکترونیک',                // نام گروه
     TaraConstants::MADE_FOREIGN // منشأ
 );
 
-// ۵. ارسال درخواست خرید
+// ۵. ایجاد اطلاعات فاکتور
+$invoiceData = $tara->createInvoiceData(
+    ۵۰۰۰۰۰,                     // مبلغ کل
+    'INV' . time(),            // شماره فاکتور
+    '',                        // اطلاعات اضافی
+    ۴۵۰۰۰,                     // مالیات (۹%)
+    [$item]                    // آیتم‌های خرید
+);
+
+// ۶. ایجاد درخواست خرید (purchaseData)
+$purchaseData = $tara->createPurchaseRequestData(
+    ۵۰۰۰۰۰,                    // مبلغ
+    'INV' . time(),           // شماره فاکتور
+    '',                       // اطلاعات اضافی
+    [$invoiceData]            // اطلاعات فاکتور
+);
+
+// ۷. ارسال درخواست خرید
 $requestResult = $tara->purchaseRequest($purchaseData, $traceNumber);
 
-// ۶. تأیید خرید
+// ۸. تأیید خرید
 $verifyResult = $tara->purchaseVerify($traceNumber);
 ```
 
@@ -579,6 +657,7 @@ curl -o config/tara.php https://raw.githubusercontent.com/shahkochaki/tara-in-pe
 | استفاده ساده     | مثال کلی از سرویس        | [TaraExample.php](./src/TaraExample.php)               |
 | پیکربندی محیطی   | استفاده از env variables | [TaraExampleUpdated.php](./src/TaraExampleUpdated.php) |
 | پیکربندی پیشرفته | استفاده از config arrays | [TaraConfigExample.php](./src/TaraConfigExample.php)   |
+| **کد اصلاح شده** | **رفع مشکل purchaseData** | [**TaraExampleFixed.php**](./src/TaraExampleFixed.php) |
 
 ## �📄 مستندات کامل فارسی
 
