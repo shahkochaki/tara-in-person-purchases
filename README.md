@@ -345,17 +345,20 @@ $result = $tara->getMerchandiseGroups();
 // Create payment trace
 $result = $tara->purchaseTrace($paymentArray, $terminalCode);
 
-// Submit purchase request
-$result = $tara->purchaseRequest($purchaseData, $traceNumber);
+// Submit purchase request (with terminal code - optional)
+$result = $tara->purchaseRequest($purchaseData, $traceNumber, $terminalCode);
 
-// Verify purchase
-$result = $tara->purchaseVerify($traceNumber);
+// Verify purchase (with terminal code - optional)
+$result = $tara->purchaseVerify($traceNumber, $terminalCode);
 
-// Reverse/cancel purchase
-$result = $tara->purchaseReverse($traceNumber);
+// Reverse/cancel purchase (with terminal code - optional)
+$result = $tara->purchaseReverse($traceNumber, $terminalCode);
 
-// Inquiry purchase status
-$result = $tara->purchaseInquiry($referenceOrTraceNumber);
+// Inquiry purchase status (with terminal code - optional)
+$result = $tara->purchaseInquiry($referenceOrTraceNumber, $terminalCode);
+```
+
+> **Important Note**: All purchase operations (`purchaseRequest`, `purchaseVerify`, `purchaseReverse`, `purchaseInquiry`) now use **terminal tokens** instead of user tokens for better security and API compliance. Terminal code is optional - if not provided, the service will use the selected terminal or first available terminal.
 ```
 
 ### Helper Methods

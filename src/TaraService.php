@@ -282,21 +282,39 @@ class TaraService
      * 
      * @param array $purchaseData Purchase request data
      * @param string $traceNumber Trace number from purchase trace
+     * @param string $terminalCode Terminal code (optional, uses selected terminal if not provided)
      */
-    public function purchaseRequest(array $purchaseData, string $traceNumber): array
+    public function purchaseRequest(array $purchaseData, string $traceNumber, string $terminalCode = null): array
     {
-        if (!$this->token) {
-            $loginResult = $this->login();
-            if (!$loginResult['success']) {
-                return $loginResult;
+        // Get terminal code
+        if (!$terminalCode) {
+            $terminalCode = $this->selectedTerminalCode;
+            if (!$terminalCode && !empty($this->terminals)) {
+                $terminalCode = $this->terminals[0]['terminalCode'] ?? null;
             }
+        }
+
+        if (!$terminalCode) {
+            return [
+                'success' => false,
+                'error' => 'Terminal code not provided and no terminals available'
+            ];
+        }
+
+        // Get the terminal access token for this terminal
+        $terminalToken = $this->getTerminalAccessCode($terminalCode);
+        if (!$terminalToken) {
+            return [
+                'success' => false,
+                'error' => 'Terminal access code not found for terminal: ' . $terminalCode
+            ];
         }
 
         try {
             // Add traceNumber to body
             $purchaseData['traceNumber'] = $traceNumber;
 
-            $response = Http::withToken($this->token)
+            $response = Http::withToken($terminalToken)
                 ->post("{$this->baseUrl}/purchase/request/{$traceNumber}", $purchaseData);
 
             if ($response->successful()) {
@@ -325,18 +343,36 @@ class TaraService
      * Purchase verify
      * 
      * @param string $traceNumber Trace number from purchase request
+     * @param string $terminalCode Terminal code (optional, uses selected terminal if not provided)
      */
-    public function purchaseVerify(string $traceNumber): array
+    public function purchaseVerify(string $traceNumber, string $terminalCode = null): array
     {
-        if (!$this->token) {
-            $loginResult = $this->login();
-            if (!$loginResult['success']) {
-                return $loginResult;
+        // Get terminal code
+        if (!$terminalCode) {
+            $terminalCode = $this->selectedTerminalCode;
+            if (!$terminalCode && !empty($this->terminals)) {
+                $terminalCode = $this->terminals[0]['terminalCode'] ?? null;
             }
         }
 
+        if (!$terminalCode) {
+            return [
+                'success' => false,
+                'error' => 'Terminal code not provided and no terminals available'
+            ];
+        }
+
+        // Get the terminal access token for this terminal
+        $terminalToken = $this->getTerminalAccessCode($terminalCode);
+        if (!$terminalToken) {
+            return [
+                'success' => false,
+                'error' => 'Terminal access code not found for terminal: ' . $terminalCode
+            ];
+        }
+
         try {
-            $response = Http::withToken($this->token)
+            $response = Http::withToken($terminalToken)
                 ->post("{$this->baseUrl}/purchase/verify/{$traceNumber}", [
                     'traceNumber' => $traceNumber
                 ]);
@@ -367,18 +403,36 @@ class TaraService
      * Purchase reverse/cancel
      * 
      * @param string $traceNumber Trace number from purchase request
+     * @param string $terminalCode Terminal code (optional, uses selected terminal if not provided)
      */
-    public function purchaseReverse(string $traceNumber): array
+    public function purchaseReverse(string $traceNumber, string $terminalCode = null): array
     {
-        if (!$this->token) {
-            $loginResult = $this->login();
-            if (!$loginResult['success']) {
-                return $loginResult;
+        // Get terminal code
+        if (!$terminalCode) {
+            $terminalCode = $this->selectedTerminalCode;
+            if (!$terminalCode && !empty($this->terminals)) {
+                $terminalCode = $this->terminals[0]['terminalCode'] ?? null;
             }
         }
 
+        if (!$terminalCode) {
+            return [
+                'success' => false,
+                'error' => 'Terminal code not provided and no terminals available'
+            ];
+        }
+
+        // Get the terminal access token for this terminal
+        $terminalToken = $this->getTerminalAccessCode($terminalCode);
+        if (!$terminalToken) {
+            return [
+                'success' => false,
+                'error' => 'Terminal access code not found for terminal: ' . $terminalCode
+            ];
+        }
+
         try {
-            $response = Http::withToken($this->token)
+            $response = Http::withToken($terminalToken)
                 ->post("{$this->baseUrl}/purchase/reverse/{$traceNumber}", [
                     'traceNumber' => $traceNumber
                 ]);
@@ -409,18 +463,36 @@ class TaraService
      * Purchase inquiry
      * 
      * @param string $referenceOrTraceNumber Reference number or trace number
+     * @param string $terminalCode Terminal code (optional, uses selected terminal if not provided)
      */
-    public function purchaseInquiry(string $referenceOrTraceNumber): array
+    public function purchaseInquiry(string $referenceOrTraceNumber, string $terminalCode = null): array
     {
-        if (!$this->token) {
-            $loginResult = $this->login();
-            if (!$loginResult['success']) {
-                return $loginResult;
+        // Get terminal code
+        if (!$terminalCode) {
+            $terminalCode = $this->selectedTerminalCode;
+            if (!$terminalCode && !empty($this->terminals)) {
+                $terminalCode = $this->terminals[0]['terminalCode'] ?? null;
             }
         }
 
+        if (!$terminalCode) {
+            return [
+                'success' => false,
+                'error' => 'Terminal code not provided and no terminals available'
+            ];
+        }
+
+        // Get the terminal access token for this terminal
+        $terminalToken = $this->getTerminalAccessCode($terminalCode);
+        if (!$terminalToken) {
+            return [
+                'success' => false,
+                'error' => 'Terminal access code not found for terminal: ' . $terminalCode
+            ];
+        }
+
         try {
-            $response = Http::withToken($this->token)
+            $response = Http::withToken($terminalToken)
                 ->post("{$this->baseUrl}/purchase/inquiry/{$referenceOrTraceNumber}", [
                     'id' => $referenceOrTraceNumber
                 ]);
@@ -714,7 +786,7 @@ class TaraService
         }
 
         // Step 2: Purchase request
-        $requestResult = $this->purchaseRequest($purchaseData, $traceNumber);
+        $requestResult = $this->purchaseRequest($purchaseData, $traceNumber, $terminalCode);
         if (!$requestResult['success']) {
             return [
                 'success' => false,
@@ -725,7 +797,7 @@ class TaraService
         }
 
         // Step 3: Purchase verify
-        $verifyResult = $this->purchaseVerify($traceNumber);
+        $verifyResult = $this->purchaseVerify($traceNumber, $terminalCode);
 
         return [
             'success' => $verifyResult['success'],
