@@ -83,7 +83,7 @@ class TaraExample
             10000,
             'INV001',
             '',
-            [$invoiceData]
+            $invoiceData
         );
 
         // Send purchase request with trace number

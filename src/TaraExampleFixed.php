@@ -76,7 +76,7 @@ class TaraExampleFixed
             $amount,                      // مبلغ
             'INV' . time(),              // شماره فاکتور
             '',                          // اطلاعات اضافی
-            [$invoiceData]               // اطلاعات فاکتور
+            $invoiceData               // اطلاعات فاکتور
         );
 
         // 7. فرآیند کامل خرید
