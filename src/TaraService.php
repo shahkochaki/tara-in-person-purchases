@@ -91,12 +91,7 @@ class TaraService
                 ];
             }
 
-            return [
-                'success' => false,
-                'error' => 'Login failed',
-                'status' => $response->status(),
-                'body' => $response->body()
-            ];
+            return $this->parseErrorResponse($response);
         } catch (Exception $e) {
             Log::error('Tara Login Error: ' . $e->getMessage());
             return [
@@ -116,6 +111,61 @@ class TaraService
         return $this->token &&
             $this->tokenExpiresAt &&
             time() < ($this->tokenExpiresAt - $bufferSeconds);
+    }
+
+    /**
+     * Parse error response and extract error details
+     */
+    private function parseErrorResponse($response): array
+    {
+        $errorData = [
+            'success' => false,
+            'status' => $response->status(),
+            'body' => $response->body()
+        ];
+
+        // Try to parse JSON response
+        $jsonResponse = $response->json();
+        if ($jsonResponse) {
+            // Check for API error format: {"data":{"code":84780028,"message":"موجودی کافی نیست."},"success":false}
+            if (isset($jsonResponse['data']) && is_array($jsonResponse['data'])) {
+                $data = $jsonResponse['data'];
+
+                if (isset($data['code']) && isset($data['message'])) {
+                    $errorData['error'] = [
+                        'title' => 'API Error',
+                        'code' => $data['code'],
+                        'message' => $data['message']
+                    ];
+                } else {
+                    $errorData['error'] = [
+                        'title' => 'API Error',
+                        'code' => 0,
+                        'message' => 'API request failed'
+                    ];
+                }
+
+                // Include full data for debugging
+                $errorData['error_data'] = $data;
+            } else {
+                $errorData['error'] = [
+                    'title' => 'API Error',
+                    'code' => 0,
+                    'message' => $jsonResponse['message'] ?? 'API request failed'
+                ];
+            }
+
+            // Include full response for debugging
+            $errorData['full_response'] = $jsonResponse;
+        } else {
+            $errorData['error'] = [
+                'title' => 'Connection Error',
+                'code' => 0,
+                'message' => 'API request failed - Invalid response format'
+            ];
+        }
+
+        return $errorData;
     }
 
     /**
@@ -163,12 +213,7 @@ class TaraService
                 ];
             }
 
-            return [
-                'success' => false,
-                'error' => 'Access code request failed',
-                'status' => $response->status(),
-                'body' => json_decode($response->getContents(), true) ?? $response->body()
-            ];
+            return $this->parseErrorResponse($response);
         } catch (Exception $e) {
             Log::error('Tara Access Code Error: ' . $e->getMessage());
             return [
@@ -201,12 +246,7 @@ class TaraService
                 ];
             }
 
-            return [
-                'success' => false,
-                'error' => 'Merchandise groups request failed',
-                'status' => $response->status(),
-                'body' => $response->body()
-            ];
+            return $this->parseErrorResponse($response);
         } catch (Exception $e) {
             Log::error('Tara Merchandise Groups Error: ' . $e->getMessage());
             return [
@@ -262,12 +302,7 @@ class TaraService
                 ];
             }
 
-            return [
-                'success' => false,
-                'error' => 'Purchase trace failed',
-                'status' => $response->status(),
-                'body' => $response->body()
-            ];
+            return $this->parseErrorResponse($response);
         } catch (Exception $e) {
             Log::error('Tara Purchase Trace Error: ' . $e->getMessage());
             return [
@@ -324,12 +359,7 @@ class TaraService
                 ];
             }
 
-            return [
-                'success' => false,
-                'error' => 'Purchase request failed',
-                'status' => $response->status(),
-                'body' => $response->body()
-            ];
+            return $this->parseErrorResponse($response);
         } catch (Exception $e) {
             Log::error('Tara Purchase Request Error: ' . $e->getMessage());
             return [
@@ -384,12 +414,7 @@ class TaraService
                 ];
             }
 
-            return [
-                'success' => false,
-                'error' => 'Purchase verify failed',
-                'status' => $response->status(),
-                'body' => $response->body()
-            ];
+            return $this->parseErrorResponse($response);
         } catch (Exception $e) {
             Log::error('Tara Purchase Verify Error: ' . $e->getMessage());
             return [
@@ -444,12 +469,7 @@ class TaraService
                 ];
             }
 
-            return [
-                'success' => false,
-                'error' => 'Purchase reverse failed',
-                'status' => $response->status(),
-                'body' => $response->body()
-            ];
+            return $this->parseErrorResponse($response);
         } catch (Exception $e) {
             Log::error('Tara Purchase Reverse Error: ' . $e->getMessage());
             return [
@@ -504,12 +524,7 @@ class TaraService
                 ];
             }
 
-            return [
-                'success' => false,
-                'error' => 'Purchase inquiry failed',
-                'status' => $response->status(),
-                'body' => $response->body()
-            ];
+            return $this->parseErrorResponse($response);
         } catch (Exception $e) {
             Log::error('Tara Purchase Inquiry Error: ' . $e->getMessage());
             return [

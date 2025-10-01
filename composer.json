@@ -1,6 +1,7 @@
 {
     "name": "shahkochaki/tara-in-person-purchases",
     "description": "Tara in-person purchase service for Laravel (Iranian credit card integration)",
+    "version": "2.2.0",
     "type": "library",
     "license": "MIT",
     "authors": [

@@ -13,7 +13,89 @@
 
 ````
 
-## ⚠️ مشکلات معمول و راه‌حل‌ها
+## ⚠️ مشکلات معمول و$verifyResult = $tara->purchaseVerify($traceNumber);
+```
+
+## 🔍 مدیریت خطاهای بهبود یافته
+
+سرویس حالا **فرمت استاندارد** برای خطاها ارائه می‌دهد:
+
+```php
+// فرمت جدید خطاها:
+'error' => [
+    'title' => 'عنوان خطا',
+    'code' => 84780028,
+    'message' => 'پیام کاربرپسند'
+]
+```
+
+### مثال استفاده:
+
+```php
+try {
+    $result = $tara->purchaseRequest($amount, $payerIdentity);
+
+    if (isset($result['error'])) {
+        $error = $result['error'];
+
+        echo "خطا: " . $error['title'] . "\n";
+        echo "کد: " . $error['code'] . "\n";
+        echo "پیام: " . $error['message'] . "\n";
+
+        // مدیریت خطاهای خاص
+        switch ($error['code']) {
+            case 84780028:
+                echo "راهکار: موجودی حساب را بررسی کنید\n";
+                break;
+            case 84780001:
+                echo "راهکار: اطلاعات کاربری را بررسی کنید\n";
+                break;
+            default:
+                echo "راهکار: لطفاً دوباره تلاش کنید\n";
+        }
+    }
+
+} catch (TaraException $e) {
+    echo "خطای سیستمی: " . $e->getMessage();
+}
+```
+
+### کدهای خطای رایج:
+
+| کد | معنی | راهکار |
+|---|------|---------|
+| `84780028` | موجودی کافی نیست | بررسی موجودی حساب |
+| `84780001` | اطلاعات کاربری نامعتبر | بررسی نام کاربری و رمز عبور |
+| `84780002` | مبلغ تراکنش نامعتبر | بررسی مبلغ وارد شده |
+| `84780003` | تراکنش تکراری | بررسی تراکنش‌های قبلی |
+| `84780004` | خطا در اتصال | بررسی اتصال شبکه |
+```
+
+### کدهای خطای رایج
+
+| کد خطا | پیام فارسی | توضیحات |
+|--------|------------|---------|
+| 84780028 | موجودی کافی نیست | موجودی کافی برای انجام تراکنش |
+| 84780001 | کاربر یافت نشد | کاربر با این مشخصات وجود ندارد |
+| 84780015 | ترمینال غیرفعال | ترمینال انتخاب شده فعال نیست |
+
+**مثال response خطا:**
+```json
+{
+  "success": false,
+  "error": "موجودی کافی نیست.",
+  "error_code": 84780028,
+  "error_message": "موجودی کافی نیست.",
+  "status": 400,
+  "full_response": {
+    "data": {"code": 84780028, "message": "موجودی کافی نیست."},
+    "success": false,
+    "timestamp": "2025-10-01T13:40:48.832853676Z"
+  }
+}
+```
+
+## 📚 منابع و مستندات‌حل‌ها
 
 ### مشکل: `purchaseData` تعریف نشده
 
@@ -399,16 +481,66 @@ TaraConstants::MADE_UNKNOWN      // 0 - Unknown origin
 All methods return a standardized response array:
 
 ```php
+// Success Response
 [
-    'success' => true|false,    // Operation success status
+    'success' => true,
     'data' => [],              // Response data on success
-    'error' => '',             // Error message on failure
-    'status' => 200,           // HTTP status code
-    'body' => ''               // Raw response body
+]
+
+// Error Response (Enhanced)
+[
+    'success' => false,        // Operation success status
+    'error' => '',             // Main error message
+    'error_code' => 84780028,  // API error code (if available)
+    'error_message' => 'موجودی کافی نیست.',  // Detailed error message
+    'error_data' => [],        // Full error data from API
+    'status' => 400,           // HTTP status code
+    'full_response' => [],     // Complete API response for debugging
 ]
 ```
 
-## Error Handling
+## Enhanced Error Handling
+
+The service now provides detailed error information including **error codes** and **Persian error messages** from the Tara API:
+
+```php
+try {
+    $result = $tara->purchaseRequest($data, $traceNumber);
+
+    if (!$result['success']) {
+        // Display main error message
+        echo "Error: " . $result['error'] . "\n";
+
+        // Display error code if available
+        if (isset($result['error_code'])) {
+            echo "Error Code: " . $result['error_code'] . "\n";
+        }
+
+        // Display detailed error message
+        if (isset($result['error_message'])) {
+            echo "Details: " . $result['error_message'] . "\n";
+        }
+
+        // Full error data for debugging
+        if (isset($result['error_data'])) {
+            var_dump($result['error_data']);
+        }
+    }
+
+} catch (Exception $e) {
+    echo "System Error: " . $e->getMessage();
+}
+```
+
+### Common Error Codes
+
+| Error Code | Persian Message  | English Description  |
+| ---------- | ---------------- | -------------------- |
+| 84780028   | موجودی کافی نیست | Insufficient balance |
+| 84780001   | کاربر یافت نشد   | User not found       |
+| 84780015   | ترمینال غیرفعال  | Terminal inactive    |
+
+### Legacy Error Handling
 
 ```php
 use Shahkochaki\TaraService\TaraException;
@@ -621,14 +753,14 @@ curl -o config/tara.php https://raw.githubusercontent.com/shahkochaki/tara-in-pe
 
 ### نمونه کدهای عملی
 
-| نوع کد           | توضیحات                   | فایل                                                   |
-| ---------------- | ------------------------- | ------------------------------------------------------ |
-| استفاده ساده     | مثال کلی از سرویس         | [TaraExample.php](./src/TaraExample.php)               |
-| پیکربندی محیطی   | استفاده از env variables  | [TaraExampleUpdated.php](./src/TaraExampleUpdated.php) |
-| پیکربندی پیشرفته | استفاده از config arrays  | [TaraConfigExample.php](./src/TaraConfigExample.php)   |
-| **کد اصلاح شده** | **رفع مشکل purchaseData** | [**TaraExampleFixed.php**](./src/TaraExampleFixed.php) |
-| پیکربندی محیطی   | استفاده از env variables  | [TaraExampleUpdated.php](./src/TaraExampleUpdated.php) |
-| پیکربندی پیشرفته | استفاده از config arrays  | [TaraConfigExample.php](./src/TaraConfigExample.php)   |
+| نوع کد           | توضیحات                   | فایل                                                                   |
+| ---------------- | ------------------------- | ---------------------------------------------------------------------- |
+| استفاده ساده     | مثال کلی از سرویس         | [TaraExample.php](./src/TaraExample.php)                               |
+| پیکربندی محیطی   | استفاده از env variables  | [TaraExampleUpdated.php](./src/TaraExampleUpdated.php)                 |
+| پیکربندی پیشرفته | استفاده از config arrays  | [TaraConfigExample.php](./src/TaraConfigExample.php)                   |
+| **کد اصلاح شده** | **رفع مشکل purchaseData** | [**TaraExampleFixed.php**](./src/TaraExampleFixed.php)                 |
+| **مدیریت خطا**   | **نمایش کد و پیام خطا**   | [**TaraErrorHandlingExample.php**](./src/TaraErrorHandlingExample.php) |
+| پیکربندی پیشرفته | استفاده از config arrays  | [TaraConfigExample.php](./src/TaraConfigExample.php)                   |
 
 ## �📄 مستندات کامل فارسی
 

@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2025-10-01
+
+### Added
+
+- **Enhanced Error Handling**: Standardized error format across all API methods
+- New `parseErrorResponse()` method for consistent error parsing
+- `TaraErrorHandlingExample.php` with comprehensive error handling demonstrations
+- User-friendly error messages in Persian with error code mapping
+- Error analysis and categorization system with suggestions
+- Support for API error format: `{"data":{"code":84780028,"message":"موجودی کافی نیست."},"success":false}`
+
+### Changed
+
+- **BREAKING**: All API methods now return standardized error format: `'error' => ['title' => '', 'code' => 0000, 'message' => '']`
+- Enhanced error responses with structured format including title, code, and message
+- Improved documentation with error handling examples and common error codes table
+- All API endpoints now use consistent error parsing and formatting
+
+### Fixed
+
+- API error responses now properly extract error codes and messages
+- Standardized error handling across login, getAccessCode, getMerchandiseGroups, purchaseTrace, purchaseRequest, purchaseVerify, purchaseReverse, and purchaseInquiry methods
+- Enhanced error debugging with full response data preservation
+
+### Documentation
+
+- Updated README.md with comprehensive error handling section
+- Added error codes reference table with Persian descriptions
+- Enhanced examples showing proper error handling patterns
+- Added troubleshooting guide for common error scenarios
+
 ## [2.1.0] - 2025-09-30
 
 ### Added
