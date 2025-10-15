@@ -544,7 +544,7 @@ class TaraService
     public function createTracePayment(int $barcode, int $amount, int $data = 0): array
     {
         return [
-            'barcode' => $barcode, // Customer user ID
+            'barcode' => str_replace(' ', '', $barcode), // Customer user ID
             'amount' => $amount,
             'data' => $data
         ];
