@@ -1,21 +1,43 @@
 {
     "name": "shahkochaki/tara-in-person-purchases",
-    "description": "Tara in-person purchase service for Laravel (Iranian credit card integration)",
-    "version": "2.2.0",
+    "description": "🚀 Tara in-person purchase service for Laravel - Iranian credit card integration with POS terminals",
+    "version": "2.2.1",
     "type": "library",
     "license": "MIT",
+    "keywords": [
+        "laravel",
+        "payment",
+        "iran",
+        "pos",
+        "credit-card",
+        "tara",
+        "persian",
+        "iranian-payment",
+        "in-person",
+        "purchase",
+        "terminal"
+    ],
+    "homepage": "https://github.com/shahkochaki/tara-in-person-purchases",
+    "support": {
+        "issues": "https://github.com/shahkochaki/tara-in-person-purchases/issues",
+        "source": "https://github.com/shahkochaki/tara-in-person-purchases",
+        "docs": "https://github.com/shahkochaki/tara-in-person-purchases/blob/main/README.md"
+    },
     "authors": [
         {
             "name": "Ali Shahkochaki",
-            "email": "ali.shahkochaki7@gmail.com"
+            "email": "ali.shahkochaki7@gmail.com",
+            "homepage": "https://github.com/shahkochaki",
+            "role": "Developer"
         }
     ],
     "require": {
-        "php": ">=7.4",
-        "illuminate/support": ">=8.0"
+        "php": "^7.4|^8.0|^8.1|^8.2|^8.3",
+        "illuminate/support": "^8.0|^9.0|^10.0|^11.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.0|^10.0"
+        "phpunit/phpunit": "^9.5|^10.0|^11.0",
+        "orchestra/testbench": "^6.0|^7.0|^8.0|^9.0"
     },
     "autoload": {
         "psr-4": {
@@ -28,8 +50,18 @@
         }
     },
     "scripts": {
-        "test": "phpunit"
+        "test": "phpunit",
+        "test-coverage": "phpunit --coverage-html coverage",
+        "analyse": "phpstan analyse src",
+        "format": "php-cs-fixer fix"
     },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
     "extra": {
         "laravel": {
             "providers": [
