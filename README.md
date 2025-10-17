@@ -589,7 +589,7 @@ composer test
 
 ## Security
 
-If you discover any security vulnerabilities, please email [your-email@example.com] instead of using the issue tracker.
+If you discover any security vulnerabilities, please email [ali.shahkochaki7@gmail.com] instead of using the issue tracker.
 
 ## Changelog
 
